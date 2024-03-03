@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
   Panel,
   PanelHeader,
@@ -9,36 +9,107 @@ import {
   Div,
   Avatar,
   NavIdProps,
+  FormLayoutGroup,
+  FormItem,
+  Input,
+  Title,
+  Textarea,
 } from '@vkontakte/vkui';
 import { UserInfo } from '@vkontakte/vk-bridge';
 import { useRouteNavigator } from '@vkontakte/vk-mini-apps-router';
+import { useUnit } from 'effector-react';
+import { $setUserOnServer, $user } from '../store/user';
+import { $recipes } from '../store/recipe';
+import { createRecipeFx, getRecipeFx } from '../api/recipe';
 
-export interface HomeProps extends NavIdProps {
-  fetchedUser?: UserInfo;
-}
+import "../styles/Home.scss";
+import { RecipeType } from '../types/recipeType';
 
-export const Home: FC<HomeProps> = ({ id, fetchedUser }) => {
-  const { photo_200, city, first_name, last_name } = { ...fetchedUser };
+
+export const Home = ({ id } : any) => {
   const routeNavigator = useRouteNavigator();
+
+  const [ userServer, recipes ] = useUnit([$setUserOnServer, $recipes]);
+  const [newRecipeTitle, setNewRecipeTitle] = useState("");
+  const [newRecipeDescription, setNewRecipeDescription] = useState("");
+
+
+  useEffect(() => {
+    if (userServer) {
+      getRecipeFx(userServer.id)
+    }
+  }, [userServer])
+
+
+  const addRecipe = async () => {
+    if (!newRecipeTitle.trim() || !newRecipeDescription.trim()) return;
+
+    const newRecipe: RecipeType = {
+      title: newRecipeTitle,
+      descr: newRecipeDescription,
+      userId: userServer.id
+    }
+
+    const data: RecipeType = await createRecipeFx(newRecipe);
+
+    if (data) {
+      setNewRecipeTitle("");
+      setNewRecipeDescription("");
+    }
+  }
 
   return (
     <Panel id={id}>
-      <PanelHeader>Главная</PanelHeader>
-      {fetchedUser && (
-        <Group header={<Header mode="secondary">User Data Fetched with VK Bridge</Header>}>
-          <Cell before={photo_200 && <Avatar src={photo_200} />} subtitle={city?.title}>
-            {`${first_name} ${last_name}`}
-          </Cell>
-        </Group>
-      )}
+      <PanelHeader 
+        className='recipes__panelheader'
+      >
+        Рецепты
+      </PanelHeader>
 
-      <Group header={<Header mode="secondary">Navigation Example</Header>}>
-        <Div>
-          <Button stretched size="l" mode="secondary" onClick={() => routeNavigator.push('persik')}>
-            Покажите Персика, пожалуйста!
+      <Group>
+        <FormLayoutGroup>
+          <FormItem top="Название блюда">
+            <Input 
+              value={newRecipeTitle}
+              onChange={(e) => setNewRecipeTitle(e.target.value)}
+            />
+          </FormItem>
+
+          <FormItem top="Описание блюда">
+            <Input 
+              value={newRecipeDescription}
+              onChange={(e) => setNewRecipeDescription(e.target.value)}
+            />
+          </FormItem>
+
+          <Button 
+            style={{marginTop: 20, marginBottom: 120}}
+            onClick={addRecipe}
+          >
+            Добавить
           </Button>
-        </Div>
+        </FormLayoutGroup>
       </Group>
+
+      <Title>asd</Title>
+      <FormLayoutGroup 
+        className='formlayout'
+      >
+        {recipes.map(item => 
+          <Group>
+            <FormItem
+              className='recipe_title'
+              top={item.title}
+            >
+              <Input
+                type='submit' 
+                className='recipe_descr' 
+                value={item.descr} 
+              />
+            </FormItem>  
+          </Group>
+        )}
+      </FormLayoutGroup>
     </Panel>
   );
 };

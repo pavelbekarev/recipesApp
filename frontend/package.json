@@ -17,8 +17,14 @@
     "@vkontakte/vk-bridge-react": "^1.0.1",
     "@vkontakte/vk-mini-apps-router": "^1.4.2",
     "@vkontakte/vkui": "^6.0.0",
+    "axios": "^1.6.7",
+    "class-validator": "^0.14.1",
+    "effector": "^23.2.0",
+    "effector-react": "^23.2.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sass": "^1.71.1",
+    "sass-loader": "^14.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
