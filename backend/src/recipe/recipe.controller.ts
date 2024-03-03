@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, Delete } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDTO } from './dto/CreateRecipeDTO';
 
@@ -19,5 +19,11 @@ export class RecipeController {
     @Post("createRecipe") 
     async CreateRecipe(@Body() data: CreateRecipeDTO) {
         return this.recipeService.createRecipe(data);
+    }
+
+
+    @Delete("delete/:id") 
+    async DeleteRecipe(@Param("id") id: string) {
+        return this.recipeService.deleteRecipe(id);
     }
 }

@@ -19,8 +19,8 @@ import { UserInfo } from '@vkontakte/vk-bridge';
 import { useRouteNavigator } from '@vkontakte/vk-mini-apps-router';
 import { useUnit } from 'effector-react';
 import { $setUserOnServer, $user } from '../store/user';
-import { $recipes } from '../store/recipe';
-import { createRecipeFx, getRecipeFx } from '../api/recipe';
+import { $recipes, filterRecipes } from '../store/recipe';
+import { createRecipeFx, deleteRecipeFx, getRecipeFx } from '../api/recipe';
 
 import "../styles/Home.scss";
 import { RecipeType } from '../types/recipeType';
@@ -58,6 +58,16 @@ export const Home = ({ id } : any) => {
     }
   }
 
+
+  const deleteRecipe = async (recipeId: string) => {
+    const status = await deleteRecipeFx(recipeId);
+
+    if (status == 200) {
+      filterRecipes(recipeId);
+    }
+  }
+
+
   return (
     <Panel id={id}>
       <PanelHeader 
@@ -91,7 +101,7 @@ export const Home = ({ id } : any) => {
         </FormLayoutGroup>
       </Group>
 
-      <Title>asd</Title>
+      <Title style={{margin: 20}}>Список рецептов</Title>
       <FormLayoutGroup 
         className='formlayout'
       >
@@ -102,10 +112,19 @@ export const Home = ({ id } : any) => {
               top={item.title}
             >
               <Input
-                type='submit' 
                 className='recipe_descr' 
                 value={item.descr} 
               />
+              <div className='button_container'>
+                <Button 
+                  className='delete_button'
+                  onClick={(e) => {
+                    deleteRecipe(item.id)
+                  }}
+                >
+                  Удалить
+                </Button>
+              </div>
             </FormItem>  
           </Group>
         )}

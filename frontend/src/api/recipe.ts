@@ -13,3 +13,9 @@ export const getRecipeFx = createEffect(async (userId: string) => {
     const { data } = await api.get("api/recipe/getRecipe/" + userId);
     return data;
 })
+
+
+export const deleteRecipeFx = createEffect(async (id: string) => {
+    const { data } = await api.delete("api/recipe/delete/" + id);
+    return data;
+})

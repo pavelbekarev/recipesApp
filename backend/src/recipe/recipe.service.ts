@@ -1,4 +1,4 @@
-import { Get, Injectable } from '@nestjs/common';
+import { Get, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRecipeDTO } from './dto/CreateRecipeDTO';
 
@@ -21,18 +21,43 @@ export class RecipeService {
         }
         
         catch (e) {
-            console.log(e);
+            throw new HttpException("recipes not found", HttpStatus.NOT_FOUND);
         }
     }
 
 
     async createRecipe(data: CreateRecipeDTO) {
-        return await this.prismaService.recipe.create({
-            data: {
-                title: data.title,
-                descr: data.descr,
-                userId: data.userId,
-            }
-        })
+        try {
+            return await this.prismaService.recipe.create({
+                data: {
+                    title: data.title,
+                    descr: data.descr,
+                    userId: data.userId,
+                }
+            })
+        }
+
+        catch (e) {
+            throw new HttpException("user not found", HttpStatus.NOT_FOUND);
+        }
+        
+    }
+
+
+    async deleteRecipe(id: string) {
+        try {
+            await this.prismaService.recipe.delete({
+                where: {
+                    id: id,
+                }
+            })
+
+            return HttpStatus.OK;
+        }
+
+        catch (e) {
+            throw new HttpException('Recipe is not exist', HttpStatus.NOT_FOUND);
+        }
+        
     }
 }
